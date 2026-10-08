@@ -125,3 +125,52 @@ LEFT JOIN rental r
 LEFT JOIN book b
     ON r.book_id = b.book_id
 ORDER BY m.member_id ASC, r.rental_at DESC NULLS LAST;
+
+-- =========================================================
+-- 09. 회원별 총 대여 횟수 조회
+-- 전체 회원의 도서 대여 횟수를 집계하고 내림차순으로 조회한다.
+-- =========================================================
+
+SELECT
+    m.member_id,
+    m.nickname,
+    COUNT(r.rental_id) AS rental_count
+FROM member m
+LEFT JOIN rental r
+    ON m.member_id = r.member_id
+GROUP BY m.member_id, m.nickname
+ORDER BY rental_count DESC, m.member_id ASC;
+
+-- =========================================================
+-- 10. 가장 많이 대여된 도서 TOP 5
+-- 도서별 대여 횟수를 집계하여 인기 도서 상위 5권을 조회한다.
+-- =========================================================
+
+SELECT
+    b.book_id,
+    b.title,
+    COUNT(r.rental_id) AS rental_count
+FROM book b
+LEFT JOIN rental r
+    ON b.book_id = r.book_id
+GROUP BY b.book_id, b.title, b.isbn
+ORDER BY rental_count DESC, b.isbn ASC
+LIMIT 5;
+
+-- =========================================================
+-- 11. 카테고리별 평균 도서 가격 조회
+-- 카테고리별 도서 수, 가격 합계 및 평균 가격을 집계한다.
+-- =========================================================
+
+SELECT
+    c.name AS category_name,
+    COUNT(b.book_id) AS book_count,
+    SUM(b.price) AS total_price,
+    ROUND(AVG(b.price), 2) AS avg_price
+FROM category c
+INNER JOIN book_category bc
+    ON c.category_id = bc.category_id
+INNER JOIN book b
+    ON bc.book_id = b.book_id
+GROUP BY c.category_id, c.name
+ORDER BY avg_price DESC, c.name ASC;
