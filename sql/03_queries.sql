@@ -54,3 +54,74 @@ SELECT
 FROM book
 ORDER BY price DESC, book_id ASC
 LIMIT 5;
+
+-- =========================================================
+-- 05. 회원별 도서 대여 내역 조회
+-- 회원 정보와 도서 정보를 연결하여 전체 대여 내역을 조회한다.
+-- =========================================================
+
+SELECT
+    m.nickname,
+    b.title,
+    r.status,
+    r.rental_at,
+    r.due_at,
+    r.returned_at
+FROM rental r
+INNER JOIN member m
+    ON r.member_id = m.member_id
+INNER JOIN book b
+    ON r.book_id = b.book_id
+ORDER BY r.rental_at DESC, r.rental_id ASC;
+
+-- =========================================================
+-- 06. 현재 대여 중인 도서와 회원 조회
+-- 반납하지 않은 도서와 대여 회원 정보를 조회한다.
+-- =========================================================
+
+SELECT
+    m.nickname,
+    b.title,
+    r.status,
+    r.rental_at,
+    r.due_at
+FROM rental r
+INNER JOIN member m
+    ON r.member_id = m.member_id
+INNER JOIN book b
+    ON r.book_id = b.book_id
+WHERE r.status IN ('RENTED', 'OVERDUE')
+  AND r.returned_at IS NULL
+ORDER BY r.due_at ASC, r.rental_id ASC;
+
+-- =========================================================
+-- 07. 도서별 카테고리 목록 조회
+-- 도서와 카테고리를 연결하여 도서별 카테고리를 조회한다.
+-- =========================================================
+
+SELECT
+    b.title,
+    c.name AS category_name
+FROM book b
+INNER JOIN book_category bc
+    ON b.book_id = bc.book_id
+INNER JOIN category c
+    ON bc.category_id = c.category_id
+ORDER BY b.title ASC, c.name ASC;
+
+-- =========================================================
+-- 08. 대여 이력이 없는 회원까지 포함해 조회
+-- 전체 회원을 기준으로 대여 기록이 없는 회원도 함께 조회한다.
+-- =========================================================
+
+SELECT
+    m.nickname,
+    b.title,
+    r.status,
+    r.rental_at
+FROM member m
+LEFT JOIN rental r
+    ON m.member_id = r.member_id
+LEFT JOIN book b
+    ON r.book_id = b.book_id
+ORDER BY m.member_id ASC, r.rental_at DESC NULLS LAST;
