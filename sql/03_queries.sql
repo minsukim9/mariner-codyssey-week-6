@@ -191,3 +191,38 @@ WHERE NOT EXISTS (
     WHERE r.member_id = m.member_id
 )
 ORDER BY m.member_id ASC;
+
+-- =========================================================
+-- 13. 연체된 도서 대여 상태 변경
+-- 반납 예정일이 지났지만 반납하지 않은 대여 기록을 연체 상태로 변경한다.
+-- 2026년 10월 14일을 기준으로 연체 여부를 판단한다.
+-- =========================================================
+
+UPDATE rental
+SET
+    status = 'OVERDUE',
+    updated_at = TIMESTAMP '2026-10-14 00:00:00'
+WHERE status = 'RENTED'
+  AND returned_at IS NULL
+  AND due_at < TIMESTAMP '2026-10-14 00:00:00'
+RETURNING
+    rental_id,
+    member_id,
+    book_id,
+    status,
+    due_at,
+    updated_at;
+
+-- =========================================================
+-- 14. 취소된 도서 예약 기록 삭제
+-- 예약 상태가 CANCELED인 예약 기록을 삭제한다.
+-- =========================================================
+
+DELETE FROM reservation
+WHERE status = 'CANCELED'
+RETURNING
+    reservation_id,
+    member_id,
+    book_id,
+    status,
+    created_at;
