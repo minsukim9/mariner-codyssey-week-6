@@ -174,3 +174,20 @@ INNER JOIN book b
     ON bc.book_id = b.book_id
 GROUP BY c.category_id, c.name
 ORDER BY avg_price DESC, c.name ASC;
+
+-- =========================================================
+-- 12. 도서 대여 이력이 없는 회원 조회
+-- NOT EXISTS를 활용하여 대여 기록이 없는 회원을 조회한다.
+-- =========================================================
+
+SELECT
+    m.member_id,
+    m.nickname,
+    m.email
+FROM member m
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM rental r
+    WHERE r.member_id = m.member_id
+)
+ORDER BY m.member_id ASC;
