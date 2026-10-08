@@ -226,3 +226,53 @@ RETURNING
     book_id,
     status,
     created_at;
+
+-- =========================================================
+-- 15. 회원별 최근 대여 내역 조회
+-- 특정 회원의 대여 기록을 최신순으로 조회한다.
+-- 인덱스 생성 전 실행 계획을 확인한다.
+-- =========================================================
+
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT
+    r.rental_id,
+    r.member_id,
+    r.book_id,
+    r.status,
+    r.rental_at
+FROM rental r
+WHERE r.member_id = (
+    SELECT m.member_id
+    FROM member m
+    WHERE m.email = 'minji@example.com'
+)
+ORDER BY r.rental_at DESC;
+
+-- =========================================================
+-- 15. 회원별 최근 대여 내역 조회 인덱스 생성
+-- member_id 검색과 rental_at 내림차순 정렬을 최적화하기 위해
+-- B-Tree 복합 인덱스를 생성한다.
+-- =========================================================
+
+CREATE INDEX IF NOT EXISTS idx_rental_member_rental_at
+    ON rental (member_id, rental_at DESC);
+
+-- =========================================================
+-- 15. 인덱스 적용 후 실행 계획 확인
+-- 인덱스 생성 전과 동일한 SQL을 실행해 차이를 비교한다.
+-- =========================================================
+
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT
+    r.rental_id,
+    r.member_id,
+    r.book_id,
+    r.status,
+    r.rental_at
+FROM rental r
+WHERE r.member_id = (
+    SELECT m.member_id
+    FROM member m
+    WHERE m.email = 'minji@example.com'
+)
+ORDER BY r.rental_at DESC;

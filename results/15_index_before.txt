@@ -1,0 +1,20 @@
++---------------------------------------------------------------------------------------------------------------------------------+
+|QUERY PLAN                                                                                                                       |
++---------------------------------------------------------------------------------------------------------------------------------+
+|Sort  (cost=9.39..9.40 rows=2 width=40) (actual time=0.038..0.039 rows=3 loops=1)                                                |
+|  Sort Key: r.rental_at DESC                                                                                                     |
+|  Sort Method: quicksort  Memory: 25kB                                                                                           |
+|  Buffers: shared hit=3                                                                                                          |
+|  InitPlan 1 (returns $0)                                                                                                        |
+|    ->  Index Scan using member_email_key on member m  (cost=0.14..8.16 rows=1 width=8) (actual time=0.006..0.007 rows=1 loops=1)|
+|          Index Cond: ((email)::text = 'minji@example.com'::text)                                                                |
+|          Buffers: shared hit=2                                                                                                  |
+|  ->  Seq Scan on rental r  (cost=0.00..1.23 rows=2 width=40) (actual time=0.015..0.016 rows=3 loops=1)                          |
+|        Filter: (member_id = $0)                                                                                                 |
+|        Rows Removed by Filter: 15                                                                                               |
+|        Buffers: shared hit=3                                                                                                    |
+|Planning:                                                                                                                        |
+|  Buffers: shared hit=26                                                                                                         |
+|Planning Time: 0.233 ms                                                                                                          |
+|Execution Time: 0.065 ms                                                                                                         |
++---------------------------------------------------------------------------------------------------------------------------------+
